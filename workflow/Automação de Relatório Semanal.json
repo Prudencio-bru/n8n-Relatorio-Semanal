@@ -1,0 +1,295 @@
+{
+  "name": "Automação de Relatório Semanal de Mídia Social",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": 7,
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        32
+      ],
+      "id": "a6095d89-5d80-4ac9-a570-e113945865ed",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1AmpMrGM4XHbFUokwvcot-yEo3zr9n9SOr9q4WsZUUcc",
+          "mode": "list",
+          "cachedResultName": "teste",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AmpMrGM4XHbFUokwvcot-yEo3zr9n9SOr9q4WsZUUcc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Métricas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AmpMrGM4XHbFUokwvcot-yEo3zr9n9SOr9q4WsZUUcc/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        32
+      ],
+      "id": "21e04c19-7046-4ee9-9ce7-556020973e2e",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RImPOJaVB8SkwfzW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=tecnologia+e+inteligencia+artificial&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        368,
+        32
+      ],
+      "id": "2075c6d6-a2a4-49fb-8920-dbbddd79b315",
+      "name": "RSS Read1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// A função map garante que todos os itens do array 'items' sejam processados e retornados.\nreturn items.map(item => {\n    \n    // Testa se o item possui a chave 'Plataforma' para confirmar que é um KPI.\n    // Isso impede que as Notícias (que não têm 'Plataforma') entrem na lógica de cálculo.\n    if (item.json.Plataforma) {\n        \n        // Converte os valores para números\n        let seguidores_atuais = Number(item.json.Seguidores_Atuais);\n        let seguidores_semana_passada = Number(item.json.Seguidores_Semana_Passada);\n        \n        // Realiza os cálculos\n        let diferenca = seguidores_atuais - seguidores_semana_passada;\n        let crescimento_percentual = (diferenca / seguidores_semana_passada) * 100;\n        \n        // Arredonda para duas casas decimais e formata\n        let crescimento_arredondado = crescimento_percentual.toFixed(2);\n        \n        // Adiciona novos campos ao objeto JSON\n        item.json.Diferenca = diferenca;\n        item.json.Crescimento_Percentual = crescimento_arredondado;\n        \n        // Retorna o item de KPI processado\n        return item; \n        \n    } else {\n        // Se o item NÃO for um KPI (é uma Notícia), ele passa adiante\n        // sem ter nenhuma propriedade alterada ou adicionada, evitando o 'undefined'.\n        return item;\n    }\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        240
+      ],
+      "id": "f90aa1a3-a00c-49f4-8de4-df5638dffb46",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c3211d25-0d98-449c-8e15-15bbd0ef00d0",
+              "name": "=Relatorio_Semanal",
+              "value": "=Relatório Semanal de Mídia Social - Gerado por Automação N8N\n\n📊 Análise de Crescimento (Calculado no Nó Code):\n\n1. {{$item(0).$json.Plataforma}}: Crescimento de {{$item(0).$json.Crescimento_Percentual}}% (Dif.: {{$item(0).$json.Diferenca}})\n2. {{$item(1).$json.Plataforma}}: Crescimento de {{$item(1).$json.Crescimento_Percentual}}% (Dif.: {{$item(1).$json.Diferenca}})\n3. {{$item(2).$json.Plataforma}}: Crescimento de {{$item(2).$json.Crescimento_Percentual}}% (Dif.: {{$item(2).$json.Diferenca}})\n\n\n📰 Últimas Notícias de Tecnologia e I.A:\n\n1. {{$item(3).$json.title}} - Link: {{$item(3).$json.link}}\n2. {{$item(4).$json.title}} - Link: {{$item(4).$json.link}}\n3. {{$item(5).$json.title}} - Link: {{$item(5).$json.link}}\n\n\nAutomação finalizada com sucesso.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        768,
+        64
+      ],
+      "id": "fee1fccf-cb76-4204-87da-3dfbb14e76cc",
+      "name": "Edit Fields",
+      "executeOnce": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        416,
+        208
+      ],
+      "id": "747534fc-c01e-414e-8232-7dceb7d6aa4d",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "sendTo": "prudenciobruh@gmail.com",
+        "subject": "=Relatório Semanal de Mídia Social - {{ $now.toFormat('dd/MM/yyyy') }}",
+        "emailType": "text",
+        "message": "={{ $json.Relatorio_Semanal }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1104,
+        176
+      ],
+      "id": "3bd89ec5-a9af-4714-a01d-bb761b966592",
+      "name": "Send a message",
+      "webhookId": "bc8078ae-3ce7-4bfc-b3a9-e45c452ddba4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "f4yTh0opk6LN8kgz",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1AmpMrGM4XHbFUokwvcot-yEo3zr9n9SOr9q4WsZUUcc",
+          "mode": "list",
+          "cachedResultName": "teste",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AmpMrGM4XHbFUokwvcot-yEo3zr9n9SOr9q4WsZUUcc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 634143703,
+          "mode": "list",
+          "cachedResultName": "Relatório",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AmpMrGM4XHbFUokwvcot-yEo3zr9n9SOr9q4WsZUUcc/edit#gid=634143703"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $now.toFormat('dd/MM/yyyy HH:mm:ss') }}",
+            "Relatório": "={{ $json.Relatorio_Semanal }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Relatório",
+              "displayName": "Relatório",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        976,
+        64
+      ],
+      "id": "1f477aea-c200-4aa7-abc1-4dd4c26507b8",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RImPOJaVB8SkwfzW",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "RSS Read1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a6495ff0-9e50-414f-b27a-644ec5eb49eb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7dd2088648e04e057b9e0020e7d9b8b5ff77f8044ec2b93775f3b452679c25b7"
+  },
+  "id": "aROO4wenMTrImndz",
+  "tags": []
+}
