@@ -8,6 +8,12 @@ O processo manual de monitoramento de KPIs de crescimento de mídias sociais (In
 
 A meta era: Consolidar todos esses dados em um único relatório, executar cálculos de crescimento e arquivar/enviar o resultado de forma totalmente autônoma.
 
+### 🔎 Visão Geral do Fluxo
+
+Este é o desenho completo da automação, desde o agendamento (`Schedule Trigger`) até a entrega (`Send a Message`):
+
+![Visão Geral do Workflow n8n](screenshots/workflow_completo.png)
+
 # ⚙️ Solução Técnica (Visão Geral do Workflow)
 
 O fluxo é agendado para rodar semanalmente (usando o Schedule Trigger) e segue a seguinte lógica:
@@ -36,6 +42,12 @@ Etapa	Nó Utilizado	Habilidade Demonstrada
     }
   
     return items;
+
+### 💻 Detalhe do Cálculo (Nó Code)
+
+Para garantir a precisão, os cálculos de crescimento percentual são realizados com lógica customizada em JavaScript:
+
+![Screenshot do Código JavaScript](screenshots/codigo_javascript.png)
 
 # ✨ Resultados e Impacto
 
