@@ -12,7 +12,7 @@ A meta era: Consolidar todos esses dados em um único relatório, executar cálc
 
 Este é o desenho completo da automação, desde o agendamento (`Schedule Trigger`) até a entrega (`Send a Message`):
 
-![Visão Geral do Workflow n8n](screenshots/workflow_completo.png)
+![Visão Geral do Workflow n8n](screenshots/workflow-completo.png)
 
 # ⚙️ Solução Técnica (Visão Geral do Workflow)
 
